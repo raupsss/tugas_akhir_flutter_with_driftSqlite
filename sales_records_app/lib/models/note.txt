@@ -1,0 +1,21 @@
+Tabel :
+
+1. Products
+    - id
+    - name_product
+    - stock
+    - unit_price
+    - created_at
+    - updated_at
+    - deleted_at
+
+2. Transactions
+    - id
+    - name_product
+    - quantity
+    - total_price
+    - entry_time
+    - created_at
+    - updated_at
+    - deleted_at
+    
