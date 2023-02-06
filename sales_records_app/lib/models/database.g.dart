@@ -391,6 +391,12 @@ class $TransactionsTable extends Transactions
       additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 128),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
+  static const VerificationMeta _productIdMeta =
+      const VerificationMeta('productId');
+  @override
+  late final GeneratedColumn<int> productId = GeneratedColumn<int>(
+      'product_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _quantityMeta =
       const VerificationMeta('quantity');
   @override
@@ -437,6 +443,7 @@ class $TransactionsTable extends Transactions
   List<GeneratedColumn> get $columns => [
         id,
         nameProduct,
+        productId,
         quantity,
         totalPrice,
         entryTime,
@@ -464,6 +471,12 @@ class $TransactionsTable extends Transactions
               data['name_product']!, _nameProductMeta));
     } else if (isInserting) {
       context.missing(_nameProductMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(_productIdMeta,
+          productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
     }
     if (data.containsKey('quantity')) {
       context.handle(_quantityMeta,
@@ -522,6 +535,8 @@ class $TransactionsTable extends Transactions
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       nameProduct: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name_product'])!,
+      productId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}product_id'])!,
       quantity: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
       totalPrice: attachedDatabase.typeMapping
@@ -548,6 +563,7 @@ class $TransactionsTable extends Transactions
 class Transaction extends DataClass implements Insertable<Transaction> {
   final int id;
   final String nameProduct;
+  final int productId;
   final int quantity;
   final int totalPrice;
   final DateTime entryTime;
@@ -558,6 +574,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   const Transaction(
       {required this.id,
       required this.nameProduct,
+      required this.productId,
       required this.quantity,
       required this.totalPrice,
       required this.entryTime,
@@ -570,6 +587,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name_product'] = Variable<String>(nameProduct);
+    map['product_id'] = Variable<int>(productId);
     map['quantity'] = Variable<int>(quantity);
     map['total_price'] = Variable<int>(totalPrice);
     map['entry_time'] = Variable<DateTime>(entryTime);
@@ -586,6 +604,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     return TransactionsCompanion(
       id: Value(id),
       nameProduct: Value(nameProduct),
+      productId: Value(productId),
       quantity: Value(quantity),
       totalPrice: Value(totalPrice),
       entryTime: Value(entryTime),
@@ -604,6 +623,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     return Transaction(
       id: serializer.fromJson<int>(json['id']),
       nameProduct: serializer.fromJson<String>(json['nameProduct']),
+      productId: serializer.fromJson<int>(json['productId']),
       quantity: serializer.fromJson<int>(json['quantity']),
       totalPrice: serializer.fromJson<int>(json['totalPrice']),
       entryTime: serializer.fromJson<DateTime>(json['entryTime']),
@@ -619,6 +639,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'nameProduct': serializer.toJson<String>(nameProduct),
+      'productId': serializer.toJson<int>(productId),
       'quantity': serializer.toJson<int>(quantity),
       'totalPrice': serializer.toJson<int>(totalPrice),
       'entryTime': serializer.toJson<DateTime>(entryTime),
@@ -632,6 +653,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   Transaction copyWith(
           {int? id,
           String? nameProduct,
+          int? productId,
           int? quantity,
           int? totalPrice,
           DateTime? entryTime,
@@ -642,6 +664,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       Transaction(
         id: id ?? this.id,
         nameProduct: nameProduct ?? this.nameProduct,
+        productId: productId ?? this.productId,
         quantity: quantity ?? this.quantity,
         totalPrice: totalPrice ?? this.totalPrice,
         entryTime: entryTime ?? this.entryTime,
@@ -655,6 +678,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     return (StringBuffer('Transaction(')
           ..write('id: $id, ')
           ..write('nameProduct: $nameProduct, ')
+          ..write('productId: $productId, ')
           ..write('quantity: $quantity, ')
           ..write('totalPrice: $totalPrice, ')
           ..write('entryTime: $entryTime, ')
@@ -667,14 +691,15 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   }
 
   @override
-  int get hashCode => Object.hash(id, nameProduct, quantity, totalPrice,
-      entryTime, transactionDate, createdAt, updatedAt, deletedAt);
+  int get hashCode => Object.hash(id, nameProduct, productId, quantity,
+      totalPrice, entryTime, transactionDate, createdAt, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Transaction &&
           other.id == this.id &&
           other.nameProduct == this.nameProduct &&
+          other.productId == this.productId &&
           other.quantity == this.quantity &&
           other.totalPrice == this.totalPrice &&
           other.entryTime == this.entryTime &&
@@ -687,6 +712,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
 class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<int> id;
   final Value<String> nameProduct;
+  final Value<int> productId;
   final Value<int> quantity;
   final Value<int> totalPrice;
   final Value<DateTime> entryTime;
@@ -697,6 +723,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   const TransactionsCompanion({
     this.id = const Value.absent(),
     this.nameProduct = const Value.absent(),
+    this.productId = const Value.absent(),
     this.quantity = const Value.absent(),
     this.totalPrice = const Value.absent(),
     this.entryTime = const Value.absent(),
@@ -708,6 +735,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   TransactionsCompanion.insert({
     this.id = const Value.absent(),
     required String nameProduct,
+    required int productId,
     required int quantity,
     required int totalPrice,
     required DateTime entryTime,
@@ -716,6 +744,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
   })  : nameProduct = Value(nameProduct),
+        productId = Value(productId),
         quantity = Value(quantity),
         totalPrice = Value(totalPrice),
         entryTime = Value(entryTime),
@@ -725,6 +754,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   static Insertable<Transaction> custom({
     Expression<int>? id,
     Expression<String>? nameProduct,
+    Expression<int>? productId,
     Expression<int>? quantity,
     Expression<int>? totalPrice,
     Expression<DateTime>? entryTime,
@@ -736,6 +766,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (nameProduct != null) 'name_product': nameProduct,
+      if (productId != null) 'product_id': productId,
       if (quantity != null) 'quantity': quantity,
       if (totalPrice != null) 'total_price': totalPrice,
       if (entryTime != null) 'entry_time': entryTime,
@@ -749,6 +780,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   TransactionsCompanion copyWith(
       {Value<int>? id,
       Value<String>? nameProduct,
+      Value<int>? productId,
       Value<int>? quantity,
       Value<int>? totalPrice,
       Value<DateTime>? entryTime,
@@ -759,6 +791,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     return TransactionsCompanion(
       id: id ?? this.id,
       nameProduct: nameProduct ?? this.nameProduct,
+      productId: productId ?? this.productId,
       quantity: quantity ?? this.quantity,
       totalPrice: totalPrice ?? this.totalPrice,
       entryTime: entryTime ?? this.entryTime,
@@ -777,6 +810,9 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     }
     if (nameProduct.present) {
       map['name_product'] = Variable<String>(nameProduct.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
     }
     if (quantity.present) {
       map['quantity'] = Variable<int>(quantity.value);
@@ -807,6 +843,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     return (StringBuffer('TransactionsCompanion(')
           ..write('id: $id, ')
           ..write('nameProduct: $nameProduct, ')
+          ..write('productId: $productId, ')
           ..write('quantity: $quantity, ')
           ..write('totalPrice: $totalPrice, ')
           ..write('entryTime: $entryTime, ')

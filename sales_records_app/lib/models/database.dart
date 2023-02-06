@@ -6,6 +6,7 @@ import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:sales_records_app/models/products_model.dart';
+import 'package:sales_records_app/models/transactionWithProduct_model.dart';
 import 'package:sales_records_app/models/transactions_model.dart';
 
 part 'database.g.dart';
@@ -21,6 +22,7 @@ class AppDb extends _$AppDb {
   @override
   int get schemaVersion => 1;
 
+  // MyPRODUCT QUERY
   Future<List<MyProduct>> getAllProductRepo() async {
     return await (select(myProducts)).get();
   }
@@ -39,6 +41,14 @@ class AppDb extends _$AppDb {
   Future deleteMyProductRepo(int id) async {
     return (delete(myProducts)..where((tbl) => tbl.id.equals(id))).go();
   }
+
+
+  // TRANSACTIONS QUERY
+
+  // Stream<List<TransactionWithProduct>> getTransactionByDate(DateTime date){
+  //   final query = (select(transactions).join([innerJoin(myProducts, myProducts.id.equalsExp(transactions.product_id))]))
+  // }
+
 }
 
 LazyDatabase _openConnection() {

@@ -25,18 +25,19 @@ class _HomePageState extends State<HomePage> {
     return await database.getAllProductRepo();
   }
 
-  Future insert(
-      int nameProduct, int quantity, DateTime date, int totalPrice) async {
+  Future insert(String nameProduct, int quantity, DateTime date, int totalPrice,
+      int productId) async {
     DateTime now = DateTime.now();
     final row = await database.into(database.transactions).insertReturning(
           TransactionsCompanion.insert(
-            nameProduct: nameProduct.toString(),
+            nameProduct: nameProduct,
             quantity: quantity,
             totalPrice: totalPrice,
             entryTime: now,
             transactionDate: date,
             createdAt: now,
             updatedAt: now,
+            productId: productId,
           ),
         );
     print(row.toString());
@@ -69,13 +70,6 @@ class _HomePageState extends State<HomePage> {
 
     super.dispose();
   }
-
-  final List<String> productItems = [
-    'Bayam',
-    'Wortel',
-    'Semangka',
-    'Anggur',
-  ];
 
   @override
   void initState() {
@@ -306,10 +300,12 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(
                 height: 20,
               ),
-               Text("Total Price = Rp 0",
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                  ),),
+              Text(
+                "Total Price = Rp 0",
+                style: const TextStyle(
+                  fontSize: 16.0,
+                ),
+              ),
 
               const SizedBox(
                 height: 10,
@@ -337,11 +333,20 @@ class _HomePageState extends State<HomePage> {
           // print(inputDate.text);
           // selectedProduct.id.toString;
           insert(
-            selectedProduct!.id,
+            selectedProduct.toString(),
             int.parse(inputQuantity.text),
             DateTime.parse(inputDate.text),
-            int.parse(inputQuantity.text)*1000,
+            int.parse(inputQuantity.text) * 1000,
+            selectedProduct!.id,
           );
+          print(selectedProduct.toString());
+          // insert(
+          //   selectedProduct!.id.toString(),
+          //   int.parse(inputQuantity.text),
+          //   DateTime.parse(inputDate.text),
+          //   int.parse(inputQuantity.text) * 1000,
+          // );
+          Navigator.pop(context);
           // Add Transaction
         },
         child: const Text(
