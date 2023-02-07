@@ -42,13 +42,41 @@ class AppDb extends _$AppDb {
     return (delete(myProducts)..where((tbl) => tbl.id.equals(id))).go();
   }
 
-
   // TRANSACTIONS QUERY
 
-  // Stream<List<TransactionWithProduct>> getTransactionByDate(DateTime date){
-  //   final query = (select(transactions).join([innerJoin(myProducts, myProducts.id.equalsExp(transactions.product_id))]))
-  // }
+  Stream<List<TransactionWithProduct>> getTransactionByDateRepo(DateTime date) {
+    final query = (select(transactions).join([
+      innerJoin(myProducts, myProducts.id.equalsExp(transactions.productId))
+    ])
+      ..where(
+        transactions.transactionDate.equals(date),
+      ));
 
+    return query.watch().map((rows) {
+      return rows.map((row) {
+        return TransactionWithProduct(
+            row.readTable(transactions), row.readTable(myProducts));
+      }).toList();
+    });
+  }
+
+  Future updateTransactionRepo(int id, int quantity, int productId,
+      DateTime transactionDate, String nameProduct, int totalPrice) async {
+    return await (update(transactions)..where((tbl) => tbl.id.equals(id)))
+        .write(
+      TransactionsCompanion(
+        nameProduct: Value(nameProduct),
+        quantity: Value(quantity),
+        productId: Value(productId),
+        totalPrice: Value(totalPrice),
+        transactionDate: Value(transactionDate),
+      ),
+    );
+  }
+
+  Future deleteTransactionRepo(int id) async {
+    return (delete(transactions)..where((tbl) => tbl.id.equals(id))).go();
+  }
 }
 
 LazyDatabase _openConnection() {

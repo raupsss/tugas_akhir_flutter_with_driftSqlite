@@ -19,6 +19,46 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController inputQuantity = TextEditingController();
+  TextEditingController inputDate = TextEditingController();
+  TextEditingController totalPrice = TextEditingController();
+  MyProduct? selectedProduct;
+
+  @override
+  void dispose() {
+    inputQuantity.dispose();
+    inputDate.dispose();
+    totalPrice.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    updateView(0, DateTime.now());
+    inputDate.text = "";
+    super.initState();
+  }
+
+  late DateTime selectedDate;
+  late List<Widget> _children;
+  late int currentIndex;
+
+  void updateView(int index, DateTime? date) {
+    setState(() {
+      if (date != null) {
+        selectedDate = DateTime.parse(DateFormat('yyyy-MM-dd').format(date));
+      }
+
+      currentIndex = index;
+      _children = [
+        MainScreen(selectedDate: selectedDate),
+        const MyProductsPage(),
+      ];
+    });
+  }
+
   final AppDb database = AppDb();
 
   Future<List<MyProduct>> getAllProduct() async {
@@ -43,40 +83,6 @@ class _HomePageState extends State<HomePage> {
     print(row.toString());
   }
 
-  final List<Widget> _children = [
-    const MainScreen(),
-    const MyProductsPage(),
-  ];
-
-  int currentIndex = 0;
-
-  void onTapped(int index) {
-    setState(() {
-      currentIndex = index;
-    });
-  }
-
-  final _formKey = GlobalKey<FormState>();
-  TextEditingController inputQuantity = TextEditingController();
-  TextEditingController inputDate = TextEditingController();
-  TextEditingController totalPrice = TextEditingController();
-  MyProduct? selectedProduct;
-
-  @override
-  void dispose() {
-    inputQuantity.dispose();
-    inputDate.dispose();
-    totalPrice.dispose();
-
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    inputDate.text = ""; //set the initial value of text field
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     // final user = FirebaseAuth.instance.currentUser!;
@@ -87,7 +93,13 @@ class _HomePageState extends State<HomePage> {
               padding: 0.0,
               backButton: false,
               accent: primaryColor,
-              onDateChanged: (value) => print(value),
+              onDateChanged: (value) {
+                setState(() {
+                  selectedDate = value;
+                  updateView(0, value);
+                  print(" SELECTED DATE ${value.toString()}");
+                });
+              },
               firstDate: DateTime.now().subtract(const Duration(days: 140)),
               lastDate: DateTime.now(),
             )
@@ -97,8 +109,9 @@ class _HomePageState extends State<HomePage> {
         visible: (currentIndex == 0) ? true : false,
         child: FloatingActionButton(
           backgroundColor: secondaryColor,
-          onPressed: (() {
-            awesomeDialogWidget(context).show();
+          onPressed: (() async {
+            await awesomeDialogWidget(context).show();
+            setState(() {});
           }),
           child: const Icon(
             Icons.add,
@@ -123,13 +136,17 @@ class _HomePageState extends State<HomePage> {
         ],
         currentIndex: currentIndex,
         selectedItemColor: Colors.green,
-        onTap: onTapped,
+        onTap: (val) {
+          updateView(val, null);
+        },
       ),
       body: _children[currentIndex],
     );
   }
 
   AwesomeDialog awesomeDialogWidget(BuildContext context) {
+    inputQuantity.clear();
+    inputDate.clear();
     return AwesomeDialog(
       context: context,
       isDense: true,
@@ -300,9 +317,9 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(
                 height: 20,
               ),
-              Text(
+              const Text(
                 "Total Price = Rp 0",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16.0,
                 ),
               ),
@@ -328,25 +345,16 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         onPressed: () {
-          // print(selectedProduct);
-          // print(inputQuantity.text);
-          // print(inputDate.text);
-          // selectedProduct.id.toString;
           insert(
-            selectedProduct.toString(),
+            selectedProduct!.nameProduct,
             int.parse(inputQuantity.text),
             DateTime.parse(inputDate.text),
             int.parse(inputQuantity.text) * 1000,
             selectedProduct!.id,
           );
-          print(selectedProduct.toString());
-          // insert(
-          //   selectedProduct!.id.toString(),
-          //   int.parse(inputQuantity.text),
-          //   DateTime.parse(inputDate.text),
-          //   int.parse(inputQuantity.text) * 1000,
-          // );
+          // print(selectedProduct!.nameProduct);
           Navigator.pop(context);
+
           // Add Transaction
         },
         child: const Text(
