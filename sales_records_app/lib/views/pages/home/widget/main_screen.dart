@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sales_records_app/models/database.dart';
 import 'package:sales_records_app/models/transactionWithProduct_model.dart';
+import 'package:sales_records_app/view_model/myproduct_services.dart';
+import 'package:sales_records_app/view_model/transactions_services.dart';
 import 'package:sales_records_app/views/pages/home/chart_page.dart';
 import 'package:sales_records_app/views/pages/util/dropdown.dart';
 import 'package:sales_records_app/views/shared/shared.dart';
@@ -31,33 +33,13 @@ class _MainScreenState extends State<MainScreen> {
   TextEditingController totalPrice = TextEditingController();
   MyProduct? selectedProduct;
 
-  Future<List<MyProduct>> getAllProduct() async {
-    return await database.getAllProductRepo();
-  }
-
-  Future update(int transactionId, int productId, int quantity,
-      DateTime transactionDate, String nameProduct, int newTotalPrice) async {
-    return await database.updateTransactionRepo(transactionId, quantity,
-        productId, transactionDate, nameProduct, newTotalPrice);
-  }
-
-  // TransactionWithProduct? transactionWithProduct;
-
-  // @override
-  // void initState() {
-  //   if (transactionWithProduct != null) {
-  //     updateHistory(transactionWithProduct!);
-  //   }
-
-  //   super.initState();
-  // }
-
-  AwesomeDialog updateHistory(TransactionWithProduct transactionWithProduct) {
+  AwesomeDialog updateHistory(
+      TransactionWithProduct transactionWithProduct) {
     selectedProduct = transactionWithProduct.myProduct;
-    inputQuantity.text = transactionWithProduct.transaction.quantity.toString();
+    inputQuantity.text =
+        transactionWithProduct.transaction.quantity.toString();
     inputDate.text = DateFormat("yyyy-MM-dd")
         .format(transactionWithProduct.transaction.transactionDate);
-
     return AwesomeDialog(
       context: context,
       isDense: true,
@@ -82,7 +64,7 @@ class _MainScreenState extends State<MainScreen> {
                 height: 20,
               ),
               FutureBuilder(
-                future: getAllProduct(),
+                future: MyProductServices().getAllProduct(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
@@ -92,9 +74,8 @@ class _MainScreenState extends State<MainScreen> {
                     if (snapshot.hasData) {
                       if (snapshot.data!.isNotEmpty) {
                         //content
-
                         return DropdownButtonFormField2(
-                          // value: transactionWithProduct.myProduct.nameProduct,
+                          value: selectedProduct,
                           decoration: InputDecoration(
                             isDense: true,
                             contentPadding: EdgeInsets.zero,
@@ -146,14 +127,6 @@ class _MainScreenState extends State<MainScreen> {
                   }
                 },
               ),
-              // TextButton(
-              //   onPressed: () {
-              //     if (_formKey.currentState!.validate()) {
-              //       _formKey.currentState!.save();
-              //     }
-              //   },
-              //   child: const Text('Submit Button'),
-              // ),
               const SizedBox(
                 height: 10,
               ),
@@ -199,21 +172,15 @@ class _MainScreenState extends State<MainScreen> {
                       onTap: () async {
                         DateTime? pickedDate = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(), //get today's date
+                          initialDate: DateTime.now(),
                           firstDate: DateTime(
                               2000), //DateTime.now() - not to allow to choose before today.
                           lastDate: DateTime(2101),
                         );
 
                         if (pickedDate != null) {
-                          print(
-                              pickedDate); //get the picked date in the format => 2022-07-04 00:00:00.000
                           String formattedDate = DateFormat('yyyy-MM-dd').format(
                               pickedDate); // format date in required form here we use yyyy-MM-dd that means time is removed
-                          print(
-                              formattedDate); //formatted date output using intl package =>  2022-07-04
-                          //You can format date as per your need
-
                           setState(() {
                             inputDate.text =
                                 formattedDate; //set foratted date to TextField value.
@@ -235,7 +202,6 @@ class _MainScreenState extends State<MainScreen> {
                   fontSize: 16.0,
                 ),
               ),
-
               const SizedBox(
                 height: 10,
               ),
@@ -258,7 +224,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         onPressed: () {
           // Edit Transaction
-          update(
+          TransactionServices().update(
             transactionWithProduct.transaction.id,
             selectedProduct!.id,
             int.parse(inputQuantity.text),
@@ -266,6 +232,7 @@ class _MainScreenState extends State<MainScreen> {
             selectedProduct!.nameProduct,
             int.parse(inputQuantity.text) * 1000,
           );
+          setState(() {});
           Navigator.pop(context);
         },
         child: const Text(
@@ -278,7 +245,7 @@ class _MainScreenState extends State<MainScreen> {
           backgroundColor: MaterialStateProperty.all(Colors.red),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18.0),
+              borderRadius: BorderRadius.circular(10.0),
               side: const BorderSide(color: Colors.red),
             ),
           ),
@@ -287,6 +254,7 @@ class _MainScreenState extends State<MainScreen> {
           // database.deleteTransactionRepo()
           // database.deleteMyProductRepo(snapshot.data![index].id);
           // setState(() {});
+          // delete(getAllProduct().)
           Navigator.pop(context);
         },
         child: const Text(
@@ -303,6 +271,7 @@ class _MainScreenState extends State<MainScreen> {
       child: Container(
         // height: 500,
         padding: const EdgeInsets.all(10.0),
+
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.only(
             topRight: Radius.circular(40),
@@ -396,13 +365,14 @@ class _MainScreenState extends State<MainScreen> {
               children: [
                 Row(
                   children: [
-                    Text(
-                      "History",
-                      style: blackTextStyle.copyWith(
-                        fontSize: 20.0,
-                      ),
-                    ),
-                    const Icon(Icons.history),
+
+                Text(
+                  "History",
+                  style: blackTextStyle.copyWith(
+                    fontSize: 20.0,
+                  ),
+                ),
+                Icon(Icons.history),
                   ],
                 ),
                 const DropdownWidget(iconColor: Colors.black),
@@ -425,6 +395,7 @@ class _MainScreenState extends State<MainScreen> {
                       } else {
                         if (snapshot.hasData) {
                           if (snapshot.data!.isNotEmpty) {
+                            print(widget.selectedDate);
                             //content
                             return ListView.builder(
                               physics: const NeverScrollableScrollPhysics(),
@@ -432,9 +403,10 @@ class _MainScreenState extends State<MainScreen> {
                               itemCount: snapshot.data!.length,
                               itemBuilder: (context, index) {
                                 return Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
                                   child: Container(
-                                    padding: const EdgeInsets.all(5),
+                                    padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
                                       color: Colors.grey[200],
                                       borderRadius: BorderRadius.circular(10),
@@ -480,15 +452,6 @@ class _MainScreenState extends State<MainScreen> {
                                     ),
                                   ),
                                 );
-                                // return HistoryTile(
-                                //     nameProduct: snapshot
-                                //         .data![index].myProduct.nameProduct,
-                                //     purchaseTime: snapshot.data![index]
-                                //         .transaction.transactionDate,
-                                //     quantity: snapshot
-                                //         .data![index].transaction.quantity,
-                                //     price: snapshot
-                                //         .data![index].transaction.totalPrice);
                               },
                             );
                           } else {

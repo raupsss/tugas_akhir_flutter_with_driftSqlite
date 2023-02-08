@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sales_records_app/views/shared/shared.dart';
@@ -228,7 +229,7 @@ class _LoginPageState extends State<LoginPage> {
                                 TextFormField(
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return "Name cannot be empty";
+                                      return "Password cannot be empty";
                                     }
                                     return null;
                                   },
@@ -334,7 +335,8 @@ class _LoginPageState extends State<LoginPage> {
           password: inputPassword.text,
         );
       } on FirebaseAuthException catch (e) {
-        print(e);
+        // print(e);
+        // errorMessage = e.message!;
       }
 
       navigatorKey.currentState!.popUntil((route) => route.isFirst);
@@ -408,7 +410,10 @@ class _LoginPageState extends State<LoginPage> {
                                 TextFormField(
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return "Name cannot be empty";
+                                      return "Email cannot be empty";
+                                    }
+                                    if (!EmailValidator.validate(value)) {
+                                      return "Please insert correct Email";
                                     }
                                     return null;
                                   },
@@ -436,7 +441,6 @@ class _LoginPageState extends State<LoginPage> {
                                   decoration: InputDecoration(
                                     suffix: InkWell(
                                       onTap: (() {
-                                        // print("hai");
                                         setState(
                                           () {
                                             passCheck = !passCheck;
@@ -462,8 +466,9 @@ class _LoginPageState extends State<LoginPage> {
                                       2 * defaultMargin,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      Navigator.pop(context);
-                                      signIn();
+                                      if (_formKey2.currentState!.validate()) {
+                                        signIn();
+                                      }
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: secondaryColor,

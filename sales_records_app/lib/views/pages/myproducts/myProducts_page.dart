@@ -4,6 +4,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sales_records_app/models/database.dart';
+import 'package:sales_records_app/view_model/myproduct_services.dart';
 import 'package:sales_records_app/views/pages/util/dropdown.dart';
 import 'package:sales_records_app/views/shared/shared.dart';
 
@@ -15,32 +16,6 @@ class MyProductsPage extends StatefulWidget {
 }
 
 class _MyProductsPageState extends State<MyProductsPage> {
-  final AppDb database = AppDb();
-
-  Future insert(String nameProduct, String stock, String unitPrice) async {
-    DateTime now = DateTime.now();
-    final row = await database.into(database.myProducts).insertReturning(
-          MyProductsCompanion.insert(
-            nameProduct: nameProduct,
-            stock: int.parse(stock),
-            unitPrice: int.parse(unitPrice),
-            createdAt: now,
-            updatedAt: now,
-          ),
-        );
-    print(row.toString());
-  }
-
-  Future<List<MyProduct>> getAllProduct() async {
-    return await database.getAllProductRepo();
-  }
-
-  Future update(int myProductId, String newNameProduct, int newStock,
-      int newUnitPrice) async {
-    await database.updateMyProductRepo(
-        myProductId, newNameProduct, newStock, newUnitPrice);
-  }
-
   final _formKey = GlobalKey<FormState>();
   TextEditingController inputNewProduct = TextEditingController();
   TextEditingController inputStock = TextEditingController();
@@ -54,6 +29,8 @@ class _MyProductsPageState extends State<MyProductsPage> {
 
     super.dispose();
   }
+
+  final AppDb database = AppDb();
 
   AwesomeDialog openDialog(MyProduct? myProduct, String titleDialog) {
     if (myProduct != null) {
@@ -101,14 +78,6 @@ class _MyProductsPageState extends State<MyProductsPage> {
                   labelText: 'Name Product',
                 ),
               ),
-              // TextButton(
-              //   onPressed: () {
-              //     if (_formKey.currentState!.validate()) {
-              //       _formKey.currentState!.save();
-              //     }
-              //   },
-              //   child: const Text('Submit Button'),
-              // ),
               const SizedBox(
                 height: 10,
               ),
@@ -167,13 +136,23 @@ class _MyProductsPageState extends State<MyProductsPage> {
         onPressed: () {
           // Add New Product
           if (myProduct == null) {
-            insert(inputNewProduct.text, inputStock.text, inputUnitPrice.text);
+            MyProductServices().insert(
+              inputNewProduct.text,
+              inputStock.text,
+              inputUnitPrice.text,
+            );
             inputNewProduct.clear();
             inputStock.clear();
             inputUnitPrice.clear();
           } else {
-            update(myProduct.id, inputNewProduct.text,
-                int.parse(inputStock.text), int.parse(inputUnitPrice.text));
+            MyProductServices().update(
+              myProduct.id,
+              inputNewProduct.text,
+              int.parse(inputStock.text),
+              int.parse(
+                inputUnitPrice.text,
+              ),
+            );
             inputNewProduct.clear();
             inputStock.clear();
             inputUnitPrice.clear();
@@ -258,7 +237,6 @@ class _MyProductsPageState extends State<MyProductsPage> {
                             Icons.add,
                           ),
                           onTap: () {
-                            // awesomeDialogWidget(context).show();
                             openDialog(null, "Add Product").show();
                           },
                         )
@@ -267,9 +245,23 @@ class _MyProductsPageState extends State<MyProductsPage> {
                     const SizedBox(
                       height: 20,
                     ),
+                    Row(
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Name\nProduct"),
+                        SizedBox(
+                          width: 50,
+                        ),
+                        Text("Stock"),
+                        SizedBox(
+                          width: 40,
+                        ),
+                        Text("Unit Price"),
+                      ],
+                    ),
                     Expanded(
                       child: FutureBuilder<List<MyProduct>>(
-                        future: getAllProduct(),
+                        future: MyProductServices().getAllProduct(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -282,91 +274,73 @@ class _MyProductsPageState extends State<MyProductsPage> {
                                 return ListView.builder(
                                   itemCount: snapshot.data?.length,
                                   itemBuilder: (context, index) {
-                                    return Table(
-                                      children: [
-                                        const TableRow(
-                                          children: [
-                                            Text(
-                                              "Name Product",
-                                            ),
-                                            Text("Stock"),
-                                            Text("Unit Price"),
-                                            Text(""),
-                                          ],
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          // color: primaryColor,
+                                          bottom: BorderSide(
+                                            //                   <--- left side
+                                            color: primaryColor,
+                                          ),
                                         ),
-                                        TableRow(
-                                          children: [
-                                            Text(
-                                              snapshot.data![index].nameProduct,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            snapshot.data![index].nameProduct,
+                                            style: blackTextStyle.copyWith(
+                                              fontSize: 16.0,
                                             ),
-                                            Text(
-                                                "${snapshot.data![index].stock}"),
-                                            Text(
-                                                "Rp ${snapshot.data![index].unitPrice}"),
-                                            Column(
-                                              children: [
-                                                TextButton(
-                                                  style: ButtonStyle(
-                                                    backgroundColor:
-                                                        MaterialStateProperty
-                                                            .all(Colors.amber),
-                                                    shape: MaterialStateProperty
-                                                        .all<
-                                                            RoundedRectangleBorder>(
-                                                      RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
-                                                        side: const BorderSide(
-                                                            color:
-                                                                Colors.amber),
-                                                      ),
-                                                    ),
-                                                  ),
+                                          ),
+                                          Text(
+                                            "${snapshot.data![index].stock}",
+                                            style: blackTextStyle.copyWith(
+                                              fontSize: 12.0,
+                                            ),
+                                          ),
+                                          Text(
+                                            "Rp ${snapshot.data![index].unitPrice}",
+                                            style: blackTextStyle.copyWith(
+                                              fontSize: 12.0,
+                                            ),
+                                          ),
+                                          Column(
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.amber,
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                child: IconButton(
                                                   onPressed: () {
-                                                    // Navigator.pop(context);
                                                     openDialog(
                                                             snapshot
                                                                 .data![index],
                                                             "Edit Product")
                                                         .show();
                                                   },
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: const [
-                                                      Icon(
-                                                        Icons.edit,
-                                                      ),
-                                                      Text(
-                                                        "Edit",
-                                                      ),
-                                                    ],
+                                                  icon: Icon(
+                                                    Icons.edit,
+                                                    color: Colors.white,
                                                   ),
                                                 ),
-                                                SizedBox(
-                                                  height: 5,
+                                              ),
+                                              SizedBox(
+                                                height: 5,
+                                              ),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.red,
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
                                                 ),
-                                                TextButton(
-                                                  style: ButtonStyle(
-                                                    backgroundColor:
-                                                        MaterialStateProperty
-                                                            .all(Colors.red),
-                                                    shape: MaterialStateProperty
-                                                        .all<
-                                                            RoundedRectangleBorder>(
-                                                      RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
-                                                        side: const BorderSide(
-                                                            color: Colors.red),
-                                                      ),
-                                                    ),
-                                                  ),
+                                                child: IconButton(
                                                   onPressed: () {
-                                                    // Navigator.pop(context);
                                                     database
                                                         .deleteMyProductRepo(
                                                             snapshot
@@ -374,29 +348,16 @@ class _MyProductsPageState extends State<MyProductsPage> {
                                                                 .id);
                                                     setState(() {});
                                                   },
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: const [
-                                                      Icon(
-                                                        Icons.delete,
-                                                        color: Colors.white,
-                                                      ),
-                                                      Text(
-                                                        "Delete",
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.white),
-                                                      ),
-                                                    ],
+                                                  icon: Icon(
+                                                    Icons.delete,
+                                                    color: Colors.white,
                                                   ),
                                                 ),
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                      ],
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     );
                                   },
                                 );
