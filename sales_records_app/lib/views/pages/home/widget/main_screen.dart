@@ -370,8 +370,7 @@ class _MainScreenState extends State<MainScreen> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) =>
-                                                   Chart(),
+                                              builder: (context) => Chart(),
                                             ),
                                           );
                                         }),
@@ -472,13 +471,12 @@ class _MainScreenState extends State<MainScreen> {
                                             ),
                                             InkWell(
                                               onTap: (() {
-                                                // awesomeDialogWidget(context).show();
-                                                updateHistory(
-                                                        snapshot.data![index])
-                                                    .show();
+                                                database.deleteTransactionRepo(
+                                                  snapshot.data![index]
+                                                      .transaction.id,
+                                                );
                                               }),
-                                              child:
-                                                  const Icon(Icons.edit_note),
+                                              child: const Icon(Icons.delete),
                                             ),
                                           ],
                                         ),
