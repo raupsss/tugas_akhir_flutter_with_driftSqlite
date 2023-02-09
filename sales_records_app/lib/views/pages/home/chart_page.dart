@@ -38,7 +38,19 @@ class Chart extends StatelessWidget {
                     {
                       "year": 2022,
                       "sales": 90,
-                    }
+                    },
+                    {
+                      "year": 2023,
+                      "sales": 100,
+                    },
+                    {
+                      "year": 2024,
+                      "sales": 10,
+                    },
+                    {
+                      "year": 2025,
+                      "sales": 40,
+                    },
                   ];
 
                   return Container(
@@ -47,7 +59,7 @@ class Chart extends StatelessWidget {
                     child: SfCartesianChart(
                       series: <ChartSeries>[
                         // Renders line chart
-                        LineSeries<Map, int>(
+                        LineSeries<Map, dynamic>(
                           dataSource: chartData,
                           xValueMapper: (Map data, _) => data["year"],
                           yValueMapper: (Map data, _) => data["sales"],

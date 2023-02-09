@@ -102,7 +102,7 @@ class MenuItems {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const Chart(),
+            builder: (context) =>  Chart(),
           ),
         );
         break;

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sales_records_app/models/database.dart';
-import 'package:sales_records_app/models/provider.dart';
+import 'package:sales_records_app/view_model/provider.dart';
 import 'package:sales_records_app/view_model/myproduct_services.dart';
 import 'package:sales_records_app/view_model/transactions_services.dart';
 import 'package:sales_records_app/views/pages/myproducts/myProducts_page.dart';
@@ -307,7 +307,7 @@ class _HomePageState extends State<HomePage> {
                     print(value.totalPrice);
                     return Text(
                       "Total Price = Rp ${value.totalPrice}",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16.0,
                       ),
                     );
