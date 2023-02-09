@@ -467,6 +467,7 @@ class _LoginPageState extends State<LoginPage> {
                                   child: ElevatedButton(
                                     onPressed: () {
                                       if (_formKey2.currentState!.validate()) {
+                                        Navigator.pop(context);
                                         signIn();
                                       }
                                     },

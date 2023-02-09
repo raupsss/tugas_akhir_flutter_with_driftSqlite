@@ -71,12 +71,10 @@ class MenuItem {
 }
 
 class MenuItems {
-  static const List<MenuItem> firstItems = [chart, share, settings];
+  static const List<MenuItem> firstItems = [chart];
   static const List<MenuItem> secondItems = [logout];
 
   static const chart = MenuItem(text: 'Chart', icon: Icons.stacked_line_chart);
-  static const share = MenuItem(text: 'Share', icon: Icons.share);
-  static const settings = MenuItem(text: 'Settings', icon: Icons.settings);
   static const logout = MenuItem(text: 'Log Out', icon: Icons.logout);
 
   static Widget buildItem(MenuItem item) {
@@ -102,15 +100,9 @@ class MenuItems {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>  Chart(),
+            builder: (context) => Chart(),
           ),
         );
-        break;
-      case MenuItems.settings:
-        //Do something
-        break;
-      case MenuItems.share:
-        //Do something
         break;
       case MenuItems.logout:
         await AwesomeDialog(
