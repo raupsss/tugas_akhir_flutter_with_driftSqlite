@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print
 
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sales_records_app/views/shared/shared.dart';
 
@@ -329,15 +328,6 @@ class _LoginPageState extends State<LoginPage> {
           );
         }),
       );
-      try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: inputEmail.text,
-          password: inputPassword.text,
-        );
-      } on FirebaseAuthException catch (e) {
-        // print(e);
-        // errorMessage = e.message!;
-      }
 
       navigatorKey.currentState!.popUntil((route) => route.isFirst);
     }

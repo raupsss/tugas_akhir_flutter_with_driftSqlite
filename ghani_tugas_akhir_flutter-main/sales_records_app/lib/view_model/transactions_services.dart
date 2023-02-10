@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:sales_records_app/models/database.dart';
 
 class TransactionServices {

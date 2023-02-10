@@ -1,7 +1,8 @@
+// ignore_for_file: avoid_print
+
 import 'package:sales_records_app/models/database.dart';
 
 class MyProductServices {
-  
   final AppDb database = AppDb();
 
   Future insert(String nameProduct, String stock, String unitPrice) async {
@@ -19,7 +20,9 @@ class MyProductServices {
   }
 
   Future<List<MyProduct>> getAllProduct() async {
-    return await database.getAllProductRepo();
+    final row = await database.getAllProductRepo();
+    return row;
+    // print(row);
   }
 
   Future update(int myProductId, String newNameProduct, int newStock,

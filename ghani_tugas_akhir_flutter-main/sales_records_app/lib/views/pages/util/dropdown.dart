@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:sales_records_app/models/order_stats_model.dart';
 import 'package:sales_records_app/views/pages/home/chart_page.dart';
 import 'package:sales_records_app/views/shared/shared.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
@@ -100,7 +101,7 @@ class MenuItems {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Chart(),
+            builder: (context) => Chart(orderStats: OrderStats.data,),
           ),
         );
         break;

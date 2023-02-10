@@ -41,9 +41,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    super.initState();
     updateView(0, DateTime.now());
     inputDate.text = "";
-    super.initState();
   }
 
   late DateTime selectedDate;
@@ -162,6 +162,12 @@ class _HomePageState extends State<HomePage> {
                         if (snapshot.data!.isNotEmpty) {
                           //content
                           return DropdownButtonFormField2(
+                            validator: (value) {
+                              if (value == null) {
+                                return "Name Product cannot be empty";
+                              }
+                              return null;
+                            },
                             decoration: InputDecoration(
                               isDense: true,
                               contentPadding: EdgeInsets.zero,
@@ -335,16 +341,24 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         onPressed: () {
-          TransactionServices().insert(
-            selectedProduct!.nameProduct,
-            int.parse(inputQuantity.text),
-            DateTime.parse(inputDate.text),
-            int.parse(inputQuantity.text) * selectedProduct!.unitPrice,
-            selectedProduct!.id,
-          );
-          setState(() {});
+          if (_formKey.currentState!.validate()) {
+            TransactionServices().insert(
+              selectedProduct!.nameProduct,
+              int.parse(inputQuantity.text),
+              DateTime.parse(inputDate.text),
+              int.parse(inputQuantity.text) * selectedProduct!.unitPrice,
+              selectedProduct!.id,
+            );
+            // MyProduct? myProduct;
+            // MyProductServices().update(
+            //     selectedProduct!.id,
+            //     selectedProduct!.nameProduct,
+            //     myProduct!.stock - int.parse(inputQuantity.text),
+            //     selectedProduct!.unitPrice);
+            Navigator.pop(context);
+            setState(() {});
+          }
           // print(selectedProduct!.nameProduct);
-          Navigator.pop(context);
 
           // Add Transaction
         },
